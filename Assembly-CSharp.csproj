@@ -56,8 +56,9 @@
     <Analyzer Include="/Applications/Visual Studio.app/Contents/MonoBundle/Addins/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/Scripts/GameManager.cs" />
     <Compile Include="Assets/Scripts/SpriteManager.cs" />
+    <Compile Include="Assets/SpriteMotion.cs" />
+    <Compile Include="Assets/Scripts/GameManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

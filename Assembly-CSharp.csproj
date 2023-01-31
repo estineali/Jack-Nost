@@ -59,6 +59,7 @@
     <Compile Include="Assets/Scripts/SpriteManager.cs" />
     <Compile Include="Assets/Scripts/SpriteMotion.cs" />
     <Compile Include="Assets/Scripts/GameManager.cs" />
+    <Compile Include="Assets/Scripts/ScreenUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

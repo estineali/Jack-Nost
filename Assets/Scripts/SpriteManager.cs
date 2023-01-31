@@ -27,6 +27,10 @@ public class SpriteManager : MonoBehaviour
     float ScaleSprite(Sprite image)
     {
         float scaler;
+        if (image.rect.height == 0 || image.rect.width == 0)
+        {
+            return 1;
+        }
 
         if (image.rect.height >= image.rect.width)
         {

@@ -5,19 +5,22 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
 
-public class SpriteManager : MonoBehaviour
+public class SpriteResizer : MonoBehaviour
 {
     // Start is called before the first frame update
 
 
-    int maxHeight = 250;
-    int maxWidth = 250;
+    int maxHeight;
+    int maxWidth;
 
     public void Start()
     {
+        maxHeight = maxWidth = Random.Range(200, 320);
+
         float scaler = ScaleSprite(GetComponent<SpriteRenderer>().sprite);
      
         transform.localScale = new Vector3(scaler, scaler);
+
     }
 
     float ScaleSprite(Sprite image) 

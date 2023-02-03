@@ -8,8 +8,8 @@ public class SpriteMotion : MonoBehaviour
     Rigidbody2D rb2d;
     Vector2 colliderSize; 
     Vector2 motionDirection;
-    float motionForceMagnitude = 100f;
-    const float rotateDegreesPerSecond = 25;
+    float motionForceMagnitude = 2f;
+    const float rotateDegreesPerSecond = 15;
     float scaler;
 
     // Start is called before the first frame update
@@ -19,7 +19,7 @@ public class SpriteMotion : MonoBehaviour
         scaler = transform.localScale.x;
 
         // initial motion Vector
-        motionDirection = new Vector3(1,0);
+        motionDirection = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
 
         colliderSize = GetComponent<BoxCollider2D>().size * scaler;
 
@@ -48,6 +48,14 @@ public class SpriteMotion : MonoBehaviour
     /// around the edges of the screen when it 
     /// goes out of the camera view
     /// </summary>
+    ///
+
+    private void FixedUpdate()
+    {
+        rb2d.AddForce(motionDirection * motionForceMagnitude);
+        motionForceMagnitude = Random.Range(-2, 5);
+    }
+
     private void OnBecameInvisible()
     {
         // Wrapping positions 

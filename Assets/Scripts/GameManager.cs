@@ -9,7 +9,9 @@ public class GameManager : MonoBehaviour
     {
         // Get screen height
         // Get screen width
-        // Set collision detectors at these locations? Or warp image to the start? 
+        // Set collision detectors at these locations? Or warp image to the start? Set screen bounds
+
+        ScreenUtils.Initialize();
     }
 
     void Start()

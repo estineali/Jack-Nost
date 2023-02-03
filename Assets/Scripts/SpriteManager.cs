@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UIElements;
 
 public class SpriteManager : MonoBehaviour
@@ -8,8 +10,8 @@ public class SpriteManager : MonoBehaviour
     // Start is called before the first frame update
 
 
-    int maxHeight = 350;
-    int maxWidth = 350;
+    int maxHeight = 250;
+    int maxWidth = 250;
 
     public void Start()
     {
@@ -18,13 +20,7 @@ public class SpriteManager : MonoBehaviour
         transform.localScale = new Vector3(scaler, scaler);
     }
 
-    // Update is called once per frame
-    public void Update()
-    {
-        
-    }
-
-    float ScaleSprite(Sprite image)
+    float ScaleSprite(Sprite image) 
     {
         float scaler;
         if (image.rect.height == 0 || image.rect.width == 0)

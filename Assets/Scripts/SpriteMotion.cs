@@ -57,20 +57,20 @@ public class SpriteMotion : MonoBehaviour
         // Wrapping in the horizontal axis
         if (transform.position.x - (colliderSize.x / 2)  >= ScreenUtils.ScreenRight)
         {
-            position.x = ScreenUtils.ScreenLeft - colliderSize.x;
+            position.x = ScreenUtils.ScreenLeft + colliderSize.x / 2;
         }
         else if (transform.position.x + (colliderSize.x / 2) <= ScreenUtils.ScreenLeft)
         {
-            position.x = ScreenUtils.ScreenRight + colliderSize.x;
+            position.x = ScreenUtils.ScreenRight - colliderSize.x / 2;
         }
         //Wrapping in the vertical axis
         if (transform.position.y - (colliderSize.y / 2) >= ScreenUtils.ScreenTop)
         {
-            position.y = ScreenUtils.ScreenBottom + colliderSize.y;
+            position.y = ScreenUtils.ScreenBottom + colliderSize.y / 2 ;
         }
         else if (transform.position.y + (colliderSize.y / 2) <= ScreenUtils.ScreenBottom)
         {
-            position.y = ScreenUtils.ScreenTop - colliderSize.y;
+            position.y = ScreenUtils.ScreenTop - colliderSize.y / 2;
         }
 
         transform.position = position;

@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Project Nostagain!!!!");
+        Debug.Log("Project Lost Again");
     }
 
     // Update is called once per frame

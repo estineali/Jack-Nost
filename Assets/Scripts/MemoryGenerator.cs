@@ -8,34 +8,36 @@ public class MemoryGenerator : MonoBehaviour
 {
 
     int refreshFreqSecs = 5;
-
-    bool fileNamesSet = false;
-    string[] fileNames;
     public string nostBucketURL = "https://nostagain.appspot.com.storage.googleapis.com/";
+    public PhysicsMaterial2D bouncyMaterial;
+    Dictionary<string, Memory> memories;
 
-    List<Memory> memories; 
+    bool routineOver = true;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        /// Run this every refreshFreqSecs.
-        /// Update the array with any new ones in there. 
-        StartCoroutine(GetNostagainBucket());
+        memories = new Dictionary<string, Memory>();
 
-
-        memories = new List<Memory>();
+        StartCoroutine(RefreshImages());
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (fileNamesSet)
+        if (routineOver)
         {
-            foreach (string item in fileNames)
-            {
-                Debug.Log(item);
-            }
+            StartCoroutine(RefreshImages());
         }
+    }
+
+    IEnumerator RefreshImages()
+    {
+        routineOver = false;
+        Debug.Log("Refreshing Images");
+        StartCoroutine(GetNostagainBucket());
+        yield return new WaitForSeconds(refreshFreqSecs);
+        routineOver = true;
+
     }
 
 
@@ -45,13 +47,12 @@ public class MemoryGenerator : MonoBehaviour
     /// <returns>Defines the list of file names</returns>
     IEnumerator GetNostagainBucket()
     {
-
         UnityWebRequest bucketFiles = UnityWebRequest.Get(nostBucketURL);
 
         yield return bucketFiles.SendWebRequest();
 
 
-        if (bucketFiles.result == UnityWebRequest.Result.Success)
+        if (bucketFiles.result != UnityWebRequest.Result.Success)
         {
             Debug.Log(bucketFiles.error);
         }
@@ -72,11 +73,6 @@ public class MemoryGenerator : MonoBehaviour
                 }
                 ReturnStringNames(textureNames);
             }
-
-            // Show results as text
-
-            // Or retrieve results as binary data
-            //byte[] results = bucketFiles.downloadHandler.data;
         }
     }
 
@@ -85,22 +81,53 @@ public class MemoryGenerator : MonoBehaviour
     /// to set the list of file names on firebase storage.
     /// </summary>
     /// <param name="names"></param>
-    public void ReturnStringNames(List<string> names)
+    public void ReturnStringNames(List<string> fileNames)
     {
-        if (fileNamesSet)
+
+        // Check if object was deleted, then remove it
+        foreach (var item in memories)
         {
-            // instead of nulling them, Add the new ones. 
-            fileNames = null;
-            Debug.Log("File names reset");
+            bool found = false;
+            foreach (string newFile in fileNames)
+            {
+                if (newFile == item.Key)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                GameObject toDestroy = memories[item.Key].gameObjRef;
+                memories.Remove(item.Key);
+                Destroy(toDestroy);
+                break;
+            }
         }
-        fileNames = new string[names.Count];
-        names.CopyTo(fileNames);
-        fileNamesSet = true;
+
+        //Instantiate any new images
+        foreach (string item in fileNames)
+        {
+            if (!memories.ContainsKey(item))
+            {
+                string[] nameAndExtension = item.Split(".");
+                if (nameAndExtension != null)
+                {
+                    string ext = nameAndExtension[nameAndExtension.Length - 1].ToLower();
+
+                    Debug.Log("Image Extension is: " + ext);
+                    if (ext == "png" || ext == "jpg" || ext == "jpeg")
+                    {
+                        StartCoroutine(DownloadImage(item));
+                    }
+                }
+            }
+        }
     }
 
     IEnumerator DownloadImage(string textureName)
     {
-        UnityWebRequest www = UnityWebRequestTexture.GetTexture(nostBucketURL + "/" + textureName);
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture(nostBucketURL + textureName);
         yield return www.SendWebRequest();
 
         if (www.result != UnityWebRequest.Result.Success)
@@ -110,15 +137,77 @@ public class MemoryGenerator : MonoBehaviour
         else
         {
             Texture2D myTexture = ((DownloadHandlerTexture)www.downloadHandler).texture;
+            Memory mem = new Memory(myTexture, textureName);
+
+            if (memories.Count == 0)
+            {
+                memories.Add(textureName, mem);
+                InstantiateMemory(textureName);
+                Debug.Log("Image Downloaded");
+            }
+            else
+            {
+                if (!memories.ContainsKey(textureName))
+                {
+                    memories.Add(textureName, mem);
+                    InstantiateMemory(textureName);
+                    Debug.Log("Image Downloaded");
+                }
+            }    
+            
 
         }
     }
 
-    void InstantiateMemory(Texture2D memory)
+    void InstantiateMemory(string memoryName)
     {
         /// Create new gameobject
         /// Set its position
         /// Add SpriteMotion Script
+        ///
+
+        if (memories[memoryName].loaded)
+        {
+            return;
+        }
+
+        GameObject gameObj = new GameObject();
+        gameObj.SetActive(false);
+
+        Rigidbody2D rb2d = gameObj.AddComponent<Rigidbody2D>();
+
+        rb2d.angularDrag = 10;
+        rb2d.drag = 2;
+
+        BoxCollider2D collider =  gameObj.AddComponent<BoxCollider2D>();
+
+        collider.sharedMaterial = bouncyMaterial;
+
+        SpriteRenderer sr = gameObj.AddComponent<SpriteRenderer>();
+        sr.color = Color.white;
+
+        Texture2D t = memories[memoryName].texture;
+        sr.sprite = Sprite.Create(t, new Rect(0f, 0f, t.width, t.height), new Vector2(0.5f, 0.5f) );
+
+        memories[memoryName].Loaded();
+
+
+        gameObj.AddComponent<SpriteResizer>();
+        gameObj.AddComponent<SpriteMotion>();
+
+        memories[memoryName].gameObjRef = gameObj;
+
+        gameObj.SetActive(true);
+
+        gameObj.transform.position = GetPosition();
+    }
+
+    Vector3 GetPosition()
+    {
+        Vector3 retVal = new Vector3(Random.Range(ScreenUtils.ScreenLeft, ScreenUtils.ScreenRight), Random.Range(ScreenUtils.ScreenBottom, ScreenUtils.ScreenTop), 0);
+
+
+        return retVal;
     }
 
 }
@@ -134,6 +223,7 @@ public class Memory
     public Texture2D texture;
     public string textureName;
     public bool loaded;
+    public GameObject gameObjRef;
 
     public Memory(Texture2D _texture, string _name)
     {

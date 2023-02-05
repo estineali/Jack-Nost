@@ -12,6 +12,7 @@ public class MemoryGenerator : MonoBehaviour
     public PhysicsMaterial2D bouncyMaterial;
     Dictionary<string, Memory> memories;
 
+    bool saveImgsToDisk = false; // True if you want to save the pictures to disk after they are downloaded 
     bool routineOver = true;
 
     // Start is called before the first frame update
@@ -143,7 +144,8 @@ public class MemoryGenerator : MonoBehaviour
             {
                 memories.Add(textureName, mem);
                 InstantiateMemory(textureName);
-                Debug.Log("Image Downloaded");
+                if (saveImgsToDisk)
+                    SaveImage(textureName, myTexture);
             }
             else
             {
@@ -151,20 +153,31 @@ public class MemoryGenerator : MonoBehaviour
                 {
                     memories.Add(textureName, mem);
                     InstantiateMemory(textureName);
-                    Debug.Log("Image Downloaded");
+
+                    if (saveImgsToDisk)
+                        SaveImage(textureName, myTexture);
                 }
-            }    
+            }
+
             
+
 
         }
     }
 
+    private void SaveImage(string textureName, Texture2D myTexture)
+    {
+        byte[] bytes = myTexture.EncodeToPNG();
+        var dirPath = Application.dataPath + "/../SaveImages/";
+        if (!System.IO.Directory.Exists(dirPath))
+        {
+            System.IO.Directory.CreateDirectory(dirPath);
+        }
+        System.IO.File.WriteAllBytes(dirPath + textureName + ".png", bytes);
+    }
+
     void InstantiateMemory(string memoryName)
     {
-        /// Create new gameobject
-        /// Set its position
-        /// Add SpriteMotion Script
-        ///
 
         if (memories[memoryName].loaded)
         {
@@ -204,10 +217,9 @@ public class MemoryGenerator : MonoBehaviour
 
     Vector3 GetPosition()
     {
-        Vector3 retVal = new Vector3(Random.Range(ScreenUtils.ScreenLeft, ScreenUtils.ScreenRight), Random.Range(ScreenUtils.ScreenBottom, ScreenUtils.ScreenTop), 0);
-
-
-        return retVal;
+        return new Vector3(Random.Range(ScreenUtils.ScreenLeft, ScreenUtils.ScreenRight),
+                           Random.Range(ScreenUtils.ScreenBottom, ScreenUtils.ScreenTop),
+                           0);
     }
 
 }
